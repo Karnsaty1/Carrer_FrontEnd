@@ -13,12 +13,12 @@ const SignUp = () => {
   const [loader, setLoader]=useState(false);
 
   const [cred, setCred] = useState({
-    email: 'karnsaty69@gmail.com',
-    password: 'hello_world27',
-    passingYear: '2019',
-    department: 'CS',
+    email: '',
+    password: '',
+    passingYear: '',
+    department: '',
   });
-
+//hello_world27
 
 
   const [showOtp, setShowOtp] = useState(false);
@@ -77,6 +77,7 @@ const SignUp = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials:'include',
         body: JSON.stringify({ email: cred.email, otp, signUp: true }),
         credentials:'include',
       });
