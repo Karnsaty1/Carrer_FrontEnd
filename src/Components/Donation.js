@@ -21,7 +21,7 @@ const Donation = () => {
        try {
         e.preventDefault();
         const token =Cookies.get('token');
-      const response =await fetch('http://localhost:8080/user/data/donate',{
+      const response =await fetch(`${process.env.REACT_APP_URL}/user/data/donate`,{
         method:'POST',
         headers:{
             'Content-Type':'application/json',

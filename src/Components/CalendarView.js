@@ -15,7 +15,7 @@ const CalendarView = () => {
    
     const mount = async () => {
       try {
-        const response = await fetch('http://localhost:8080/user/data/events', {
+        const response = await fetch(`${process.env.REACT_APP_URL}/user/data/events`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

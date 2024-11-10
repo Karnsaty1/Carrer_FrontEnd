@@ -10,7 +10,7 @@ const Home = () => {
     return `/${path}/${uniqueId}`;
   };
 
-
+console.log(process.env.REACT_APP_URL);
   return (
     <div style={{
       display: 'flex',

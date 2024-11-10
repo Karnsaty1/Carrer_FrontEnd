@@ -11,7 +11,7 @@ const ProtectedRoute = ({ element: Component }) => {
     const verifyToken = async () => {
       try {
         const token=Cookies.get('token');
-        const response = await fetch('http://localhost:8080/user/data/verifyToken', {
+        const response = await fetch('${process.env.REACT_APP_URL}/user/data/verifyToken', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

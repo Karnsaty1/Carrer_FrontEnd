@@ -31,7 +31,7 @@ const SignUp = () => {
         e.preventDefault();
         try {
           setLoader(true);
-          const response = await fetch('http://localhost:8080/user/auth/signUp', {
+          const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/signUp`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const SignUp = () => {
     e.preventDefault();
     setLoader(true);
     try {
-      const response = await fetch('http://localhost:8080/user/auth/verifyOTP', {
+      const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/verifyOTP`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

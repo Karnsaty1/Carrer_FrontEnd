@@ -26,7 +26,7 @@ const LogIn = () => {
     e.preventDefault();
     try {
       setLoader(true);
-      const response = await fetch('http://localhost:8080/user/auth/logIn', {
+      const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/logIn`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,6 +35,7 @@ const LogIn = () => {
         body: JSON.stringify(cred),
       });
 
+      console.log(process.env.REACT_APP_URL);
       if (response.ok) {
         setShowOtp(true);
         setError('');
@@ -54,7 +55,7 @@ const LogIn = () => {
     e.preventDefault();
     try {
      
-      const response = await fetch('http://localhost:8080/user/auth/verifyOTP', {
+      const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/verifyOTP`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

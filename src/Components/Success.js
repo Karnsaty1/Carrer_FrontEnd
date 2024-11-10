@@ -18,7 +18,7 @@ const Success = () => {
          try {
           const token =Cookies.get('authToken');
 
-          const response =await fetch('http://localhost:8080/user/data/success',{
+          const response =await fetch(`${process.env.REACT_APP_URL}/user/data/success`,{
             method:'GET',
             headers:{
               'Content-Type':'application/json',
