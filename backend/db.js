@@ -11,7 +11,7 @@ const connectDB = async () => {
         // const client = new MongoClient(`mongodb+srv://${userName}:${password}@cluster0.hfsa6.mongodb.net/${dbName}?retryWrites=true&w=majority&appName=Cluster0`
         // );
 
-        const client=new MongoClient('mongodb://localhost:27017')
+        const client=new MongoClient('mongodb://localhost:27017');
 
         await client.connect();
         console.log('Connected !!! 🌍🌎🌏');

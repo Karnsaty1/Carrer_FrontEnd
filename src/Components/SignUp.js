@@ -9,64 +9,50 @@ const SignUp = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const uniqueId = id || uuidv4();
-  const generateLink = (path) => `/${path.slice(1,6)}/${uniqueId}`;
-  const [loader, setLoader]=useState(false);
+  const generateLink = (path) => `/${path.slice(1, 6)}/${uniqueId}`;
+  const [loader, setLoader] = useState(false);
 
   const [cred, setCred] = useState({
     email: '',
     password: '',
-    passingYear: '',
-    department: '',
+    userName: '',
   });
-//hello_world27
-
 
   const [showOtp, setShowOtp] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']); // OTP as an array, default is empty
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword]=useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  
-      const onSubmit = async (e) => {
-        e.preventDefault();
-        try {
-          setLoader(true);
-          const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/signUp`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials:'include',
-            body: JSON.stringify(cred),
-            
-          })
-      
-          if (!response.ok) {
-            console.log(response);
-            console.log("error !!! ");
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          else {
-             setShowOtp((prev)=>!prev)
-            const data = await response.json();
-            console.log(data); 
-          }
-        }
-        catch (err) {
-          console.log(err);
-          setError('An error occurred. Please try again.');
-        }
-        finally{
-          setLoader(false)
-        };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoader(true);
+      const response = await fetch(`${process.env.REACT_APP_URL}/user/auth/signUp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(cred),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      } else {
+        setShowOtp(true);
+        const data = await response.json();
+        console.log(data);
       }
-      
-     const toggleVisibility=()=>{
-      setShowPassword((prev)=>!prev);
-     }
-    
-     
-    
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const toggleVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const onOtpSubmit = async (e) => {
     e.preventDefault();
@@ -77,11 +63,10 @@ const SignUp = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials:'include',
-        body: JSON.stringify({ email: cred.email, otp, signUp: true }),
-        credentials:'include',
+        credentials: 'include',
+        body: JSON.stringify({ email: cred.email, otp: otp.join(''), signUp: true, userName:cred.userName }),
       });
-      
+
       if (response.ok) {
         navigate(`/card/${uniqueId}`);
       } else {
@@ -89,10 +74,8 @@ const SignUp = () => {
         setError(errorMessage);
       }
     } catch (err) {
-      console.log(err);
       setError('An error occurred. Please try again.');
-    }
-    finally{
+    } finally {
       setLoader(false);
     }
   };
@@ -101,170 +84,221 @@ const SignUp = () => {
     setCred({ ...cred, [e.target.name]: e.target.value });
   };
 
+  const handleOtpChange = (e, index) => {
+    const value = e.target.value;
+    if (/[^0-9]/.test(value)) return; 
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < otp.length - 1) {
+      document.getElementById(`otp-input-${index + 1}`).focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace' && otp[index] === '' && index > 0) {
+      document.getElementById(`otp-input-${index - 1}`).focus();
+    }
+  };
+
   return (
-    <div
-      style={{
-        textAlign: 'center',
-        fontFamily: '"Noto Sans", sans-serif',
-       
-        boxSizing: 'border-box',
-      //   background:`url(${image})`,
-      //   // backgroundSize: 'cover',
-      // backgroundPosition: 'center',
-      // height: '120vh', 
-      // width: '100%', 
-      }}
-    >
-      <h1 style={{ marginTop: '30px' }}>SignUp</h1>
-      <Link to={generateLink('/login/:id')} style={{ display: 'block', marginBottom: '10px' }}>
-        <small>Already Have an Account?</small>
+    <div style={styles.signupContainer}>
+      <h1 style={styles.signupTitle}>CareerConnect</h1>
+      <h3 style={styles.signupTitle}>Sign Up</h3>
+      <Link to={generateLink('/login/:id')} style={styles.loginLink}>
+        <small>Already have an account?</small>
       </Link>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p style={styles.errorMessage}>{error}</p>}
 
-      {loader?(<Loading/>):(
-
-
-<>
- 
-
-      {!showOtp ? (
-        <form
-        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '10%' }}
-        onSubmit={onSubmit}
-        >
-          <div style={{ display: 'grid', width: '300px' }}>
-            <div style={{ marginTop: '10%' }}>
-              <label htmlFor="email" style={{ marginTop:'-100px',display: 'block', marginBottom: '15px' }}>
-                Email address
-              </label>
-              <input
-                
-                type="email"
-                id="email"
-                name="email"
-                value={cred.email}
-                onChange={onChange}
-                placeholder="Enter email"
-                style={{ borderRadius:'10px', marginTop: '-100px',width: '100%', padding: '8px', marginBottom: '15px', textAlign: 'center' }}
-                aria-label="Email Address"
-              />
-            </div>
-            <div style={{position:'relative', marginTop: '10%' }}>
-              <label htmlFor="password" style={{ display: 'block', marginBottom: '15px' }}>
-                Password
-              </label>
-              <input
-                
-                type={showPassword?'text':'password'}
-                id="password"
-                name="password"
-                onChange={onChange}
-                placeholder="Password"
-                value={cred.password}
-                style={{ borderRadius:'10px', marginTop: '-100px',width: '100%', padding: '8px', marginBottom: '15px', textAlign: 'center' }}
-                aria-label="Password"
+      {loader ? (
+        <Loading />
+      ) : (
+        <>
+          {!showOtp ? (
+            <form style={styles.signupForm} onSubmit={onSubmit}>
+              <div style={styles.formGroup}>
+                <label htmlFor="email" style={styles.formLabel}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={cred.email}
+                  onChange={onChange}
+                  placeholder="Enter email"
+                  style={styles.formInput}
                 />
-
-                <span onClick={toggleVisibility} style={{ position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        cursor: 'pointer',
-                        marginTop:'8px'}}>
-<FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-                
-                </span>
-            </div>
-            <div style={{ marginTop: '10%' }}>
-              <label htmlFor="passingYear" style={{ display: 'block', marginBottom: '15px' }}>
-                Passing Year
-              </label>
-              <input
-                
-                type="text"
-                id="passingYear"
-                name="passingYear"
-                value={cred.passingYear}
-                onChange={onChange}
-                placeholder="Enter Passed Year"
-                style={{ borderRadius:'10px', marginTop: '-100px',width: '100%', padding: '8px', marginBottom: '15px', textAlign: 'center' }}
-                aria-label="Passed Year"
+              </div>
+              <div style={styles.formGroup}>
+                <label htmlFor="password" style={styles.formLabel}>
+                  Password
+                </label>
+                <div style={styles.passwordContainer}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    onChange={onChange}
+                    placeholder="Enter password"
+                    value={cred.password}
+                    style={styles.formInput}
+                  />
+                  <span style={styles.passwordToggle} onClick={toggleVisibility}>
+                    <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                  </span>
+                </div>
+              </div>
+              <div style={styles.formGroup}>
+                <label htmlFor="userName" style={styles.formLabel}>
+                  User Name
+                </label>
+                <input
+                  type="text"
+                  id="userName"
+                  name="userName"
+                  value={cred.userName}
+                  onChange={onChange}
+                  placeholder="Enter User Name"
+                  required={true}
+                  style={styles.formInput}
                 />
-            </div>
-          
-            
-            <div style={{ marginTop: '10%' }}>
-              <label htmlFor="department" style={{ display: 'block', marginBottom: '15px' }}>
-                Department
-              </label>
-              <input
-                
-                type="text"
-                id="department"
-                name="department"
-                value={cred.department}
-                onChange={onChange}
-                placeholder="Enter Department"
-                style={{ borderRadius:'10px', marginTop: '-100px',width: '100%', padding: '8px', marginBottom: '15px', textAlign: 'center' }}
-                aria-label="Department"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            style={{
-              marginTop: '20px',
-              padding: '12px 52px',
-              fontSize: '16px',
-              backgroundColor: '#007bff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-            }}
-            >
-            Submit
-          </button>
-        </form>
-      ) : ( 
-        <form onSubmit={onOtpSubmit} style={{ marginTop: '10%' }}>
-          <label htmlFor="otp" style={{ display: 'block', marginBottom: '5px' }}>
-            Enter OTP
-          </label>
-          <input
-            
-            type="text"
-            className='text_otp'
-            id="otp"
-            name="otp"
-            value={otp}
-            
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="Enter OTP"
-            style={{ width: '30%', padding: '8px',display:'block',margin:'auto', marginBottom: '15px', textAlign: 'center' }}
-            aria-label="OTP"
-            />
-          <button
-            type="submit"
-            style={{
-              padding: '12px 52px',
-              fontSize: '16px',
-              backgroundColor: '#007bff',
-              color: '#fff',
-              marginBottom:'15px',
-              border: 'none',
-              borderRadius: '4px',
-            }}
-            >
-            Verify OTP
-          </button>
-        </form>
+              </div>
+              <button type="submit" style={styles.submitButton}>
+                Submit
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={onOtpSubmit} style={styles.otpForm}>
+              <label htmlFor="otp" style={styles.formLabel}>Enter OTP</label>
+              <div style={styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    id={`otp-input-${index}`}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    maxLength={1}
+                    style={styles.otpInput}
+                    placeholder=""
+                  />
+                ))}
+              </div>
+              <button type="submit" style={styles.submitButton}>
+                Verify OTP
+              </button>
+            </form>
+          )}
+        </>
       )}
-  </>
-  )}
     </div>
   );
 };
 
+const styles = {
+  signupContainer: {
+    width: '100%',
+    maxWidth: '510px',
+    padding: '30px',
+    backgroundColor: 'white',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+    textAlign: 'center',
+    fontFamily: '"Arial", sans-serif',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
+  signupTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '20px',
+  },
+  loginLink: {
+    color: '#007bff',
+    textDecoration: 'none',
+    marginBottom: '20px',
+    display: 'block',
+    fontSize: '14px',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: '14px',
+    marginBottom: '10px',
+  },
+  signupForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  formGroup: {
+    marginBottom: '20px',
+    width: '100%',
+  },
+  formLabel: {
+    fontSize: '14px',
+    color: '#666',
+    marginBottom: '8px',
+  },
+  formInput: {
+    padding: '12px',
+    fontSize: '16px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    outline: 'none',
+    width: '100%',
+    boxSizing: 'border-box',
+    transition: 'all 0.3s ease',
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+  },
+  submitButton: {
+    padding: '12px',
+    fontSize: '16px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+    marginTop: '10px',
+  },
+  otpContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: '15px',
+  },
+  otpInput: {
+    width: '40px',
+    height: '40px',
+    textAlign: 'center',
+    fontSize: '18px',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    outline: 'none',
+  },
+  otpForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+};
+
 export default SignUp;
+//hello_world27

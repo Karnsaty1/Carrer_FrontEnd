@@ -6,7 +6,7 @@ import 'react-calendar/dist/Calendar.css';
 import Loading from './Loading';
 
 const CalendarView = () => {
-  const token = Cookies.get('authToken');
+  
   const [events, setEvents] = useState([]);
   const [loader, setLoader]=useState(false);
 
@@ -15,6 +15,8 @@ const CalendarView = () => {
    
     const mount = async () => {
       try {
+        const token = Cookies.get('authToken');
+        console.log(token);
         const response = await fetch(`${process.env.REACT_APP_URL}/user/data/events`, {
         method: 'GET',
         headers: {

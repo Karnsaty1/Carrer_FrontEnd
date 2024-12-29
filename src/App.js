@@ -12,6 +12,10 @@ import Donation from './Components/Donation';
 import CalendarView from './Components/CalendarView';
 import Home from './Components/Home';
 import Loading from './Components/Loading';
+import Prep from './Components/Prep';
+import PrepDetails from './Components/PrepDetails';
+import AddSuccess from './Components/AddSuccess';
+import GetProfile from './Components/GetProfile';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -47,6 +51,10 @@ function App() {
           <Route path="/post/:id" element={<AddPost/>} />
           <Route path="/donate/:id" element={<Donation/>} />
           <Route path="/event/:id" element={<CalendarView/>} />
+          <Route path="/prepDetail/:topic" element={<PrepDetails />} />
+          <Route path="/getProfile/:userName" element={<GetProfile/>} />
+          <Route path="/prep/:id" element={<Prep/>} />
+          <Route path="/addFeed" element={<AddSuccess/>} />
         </Routes>
         </>
                )}

@@ -1,319 +1,258 @@
-import React, {useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { v4 as uuidv4 } from 'uuid';
 import Loading from './Loading';
 
 const JobPortal = () => {
+  const uniqueId = uuidv4();
+  const generateLink = (path) => `/${path.slice(1, 5)}/${uniqueId}`;
+  const [cards, setCards] = useState([]);
+  const [filteredCards,setFilteredCards]=useState([]);
+  const [error, setError] = useState('');
+  const [loader, setLoader] = useState(false);
 
-  const uniqueId =  uuidv4();
-  const generateLink = (path) => `/${path.slice(1,5)}/${uniqueId}`;
-  const [cards, setCards]=useState([]);
-  const [error, setError]=useState('');
-  const [loader, setLoader]=useState(false);
-useEffect( ()=>{
-  setLoader(true);
-  const fetchPosts = async () => {
-    try {
-        const token = Cookies.get('authToken'); 
+  function serachBar(event){
+    const query=event.target.value.toLowerCase();
+    if(!query){
+      setFilteredCards(cards);
+      return;
+    }
+    const filteredElement=cards.filter((element)=>
+      element.jobTitle.toLowerCase().includes(query) ||
+      element.description.toLowerCase().includes(query)||
+      element.companyName.toLowerCase().includes(query) ||
+      element.jobType.toLowerCase().includes(query) ||
+      element.requirement.toLowerCase().includes(query)
+    );
+    setFilteredCards(filteredElement);
+
+  }
+
+  useEffect(() => {
+    setLoader(true);
+    const fetchPosts = async () => {
+      try {
+        const token = Cookies.get('authToken');
         if (!token) {
-            console.log('Token not available');
-            return;
+          console.log('Token not available');
         }
 
         const response = await fetch(`${process.env.REACT_APP_URL}/user/data/fetchPost`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${token}`
-            }
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
         });
 
         if (!response.ok) {
-            console.log('Failed to fetch posts');
-            return;
+          console.log('Failed to fetch posts');
+          return;
         }
 
         const data = await response.json();
         setCards(data);
-    } catch (error) {
+        setFilteredCards(data);
+      } catch (error) {
         console.log('Error:', error);
         setError(error.message);
-    }
-    finally{
-      setLoader(false);
-    }
-};
+      } finally {
+        setLoader(false);
+      }
+    };
 
- fetchPosts();  
-},[])
-  
+    fetchPosts();
+  }, []);
 
+  const text =
+    'Despite facing financial hardships, XYZ, a determined student from a small village, refused to let her dreams fade. With limited access to resources, she studied under streetlights and walked miles to attend school. Her perseverance paid off when she earned a full scholarship to a top university. There, she excelled in her studies while also mentoring others facing similar struggles. Today, XYZ is a software engineer at a leading tech company, using her success to uplift her community. Her journey from adversity to achievement is a testament to resilience, proving that determination and hard work can transform lives.';
 
+  return (
+    <div className="job-portal-container">
+      {loader ? (
+        <Loading />
+      ) : (
+        <>
+          <Navbar />
 
-  const text='Despite facing financial hardships, XYZ, a determined student from a small village, refused to let her dreams fade. With limited access to resources, she studied under streetlights and walked miles to attend school. Her perseverance paid off when she earned a full scholarship to a top university. There, she excelled in her studies while also mentoring others facing similar struggles. Today, XYZ is a software engineer at a leading tech company, using her success to uplift her community. Her journey from adversity to achievement is a testament to resilience, proving that determination and hard work can transform lives.'
-    return (
-        <div className='container_04'>
+          <style>
+            {`
+            body {
+              margin: 0;
+              font-family: 'Noto Sans', sans-serif;
+              background-color: #f9f9f9;
+            }
 
+            .job-portal-container {
+              padding: 20px;
+            }
 
-          {loader?(<Loading/>):(
-            <>
-            
-            
-            
-       <Navbar/>
+            .add {
+              text-align: center;
+              margin-bottom: 30px;
+            }
 
+            .add h2 {
+              font-size: 1.5rem;
+              margin-bottom: 15px;
+              color: #333;
+            }
 
-       <style>
-        {`
-          * {
-            font-family: "Noto Sans", sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
+            .btn_02 {
+              padding: 10px 20px;
+              font-size: 1rem;
+              color: #fff;
+              background-color: #007bff;
+              border: none;
+              border-radius: 5px;
+              transition: all 0.3s;
+            }
 
-          .nav-home {
-            display: flex;
-            justify-content: space-between;
-          }
+            .btn_02:hover {
+              background-color: #0056b3;
+              transform: scale(1.05);
+            }
 
-          body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-              'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-              -webkit-font-smoothing: antialiased;
-              -moz-osx-font-smoothing: grayscale;
-              background-size: cover;
-          }
+            .container_05 {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+            }
 
-          code {
-            font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-          }
+            .c_05 {
+              background-color: #fff;
+              border: 1px solid #ddd;
+              border-radius: 10px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              padding: 20px;
+              text-align: center;
+              transition: transform 0.3s;
+            }
 
-          input {
-            text-align: center;
-          }
+            .c_05:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            }
 
-          .form_01 {
-            display: flex;
-            justify-content: center;
-            margin-top: 10%;
-            text-align: center;
-          }
-          
-          .conatiner {
-            display: grid;
-          }
-          
-          .btn {
-            margin-top: 56px;
-            width: 100%;
-          }
-          
-          .Page_01 {
-            text-align: center;
-          }
+            .c_05 h3 {
+              font-size: 1.25rem;
+              color: #333;
+              margin-bottom: 10px;
+            }
 
-          .Page_01 h1 {
-            margin-top: 30px;
-          }
-          
-          .btn_02 {
-            width: 37%;
-            margin: auto;
-            margin-bottom: 40px;
-            margin-top: 10px;
-          }
+            .c_05 h5 {
+              font-size: 1rem;
+              color: #555;
+              margin-bottom: 15px;
+            }
 
-          .form-group {
-            margin-top: 10%;
-          }
+            .search-bar {
+    display: block;
+    width: 55%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: #333;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
 
-          .form_02 {
-            text-align: center;
-            display: grid;
-            justify-content: center;
-            margin-top: 10%;
-          }
-          
-          .container_02 {
-            display: flex;
-            justify-content: center;
-          }
-          
-          .subContainer_02 {
-            margin: auto;
-            margin-top: 10%;
-          }
-          
-          .label_02 {
-            margin-right: 10px;
-          }
-          
-          .b_01 {
-            margin-top: 0px;
-            width: 155%;
-          }
+  .search-bar:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  }
 
-          .onlyPara {
-            text-align: center;
-          }
-          
-          .add {
-            margin: auto;
-            text-align: center;
-          }
+  .search-bar::placeholder {
+    color: #aaa;
+    font-style: italic;
+  }
 
-          .results {
-            display: grid;
-            justify-content: center;
-          }
-          
-          .card {
-            margin: 10px;
-            width: 95%;
-          }
-          
-          .container_03 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-          }
-          
-          .card-body {
-            text-align: center;
-          }
-          
-          .c_05 {
-            display: grid;
-            text-align: center;
-            border: 3px solid black;
-            width: 80%;
-            margin: auto;
-            margin-top: 10px;
-            margin-bottom: 20px;
-          }
-          
-          .c_05 p {
-            margin: auto;
-            width: 60%;
-            margin-top: 20px;
-            margin-bottom: 40px;
-          }
-          
-          .sticky-navbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-          }
-          
-          .input_job_01 {
-            width: 60%;
-            margin: auto;
-          }
-          
-          .text_form {
-            text-align: center;
-          }
-          
-          .text_form button {
-            width: 40%;
-            margin: auto;
-            margin-bottom: 70px;
-          }
-          
-          .label_02 {
-            margin-top: 30px;
-            margin-bottom: 30px;
-          }
-          
-          .check_01 {
-            margin-left: 148px;
-          }
-          
-          .form_03 {
-            display: grid;
-            justify-content: center;
-            margin-top: 5%;
-            text-align: center;
-          }
-          
-          .form_03 input {
-            margin: auto;
-            margin-top: 10px;
-            width: 60%;
-            text-align: center;
-          }
-          
-          .calander {
-            margin-top: 20px;
-          }
-          
-          .form-group_01 {
-            margin-top: 30px;
-          }
-          
-          .events_cal {
-            display: grid;
-            justify-content: center;
-          }
-          
-          .event_h3 {
-            display: grid;
-            justify-content: center;
-            text-align: center;
-          }
-          
-          .event-details {
-            display: grid;
-            width: 100%;
-            justify-content: center;
-          }
-          
-          .child_event {
-            margin: auto;
-            margin-top: 20px;
-          }
-          
-          .img_qr_01 {
-            width: 19%;
-            height: 94%;
-            margin: auto;
-          }
-          
-          .btn_01 {
-            width: 30%;
-            margin: auto;
-            margin-top: 30px;
-            margin-bottom: 30px;
-          }
-          `}
-      </style>
-       <div className='add'>
-        <h2>Want to add a new posting ? </h2>
-       
-       <Link to={generateLink('/post/:id')}> <button className='btn btn-primary btn_02'>Add Here </button></Link>
-       </div>
-       {error?(<><p>Failed To Load Postings</p><p>{error}</p></>):( <div className ='container_05'>
-         {cards.map((element,index)=>(
-           <div key={index} className='c_05'>
-            <h3>{element.companyName}</h3>
-            <h5>Job Title : {element.jobTitle}</h5>
-            <p> Description : {element?.description ||text }</p>
-            <p>Job Type : {element.jobType}</p>
-            <p>Requirements : { element.requirement}</p>
-            <p>Posted At : {element.postedAt.slice(0,10)}</p>
-            <small>{element.Note}</small>
-            <a href={element.link} target='_blank'><button className='btn btn-primary btn_02'>Apply Now</button></a>
-           </div>
-         ))}
-        </div>)}
+  .search-bar-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+            .c_05 p {
+              font-size: 0.9rem;
+              color: #666;
+              margin-bottom: 15px;
+            }
+
+            .c_05 small {
+              display: block;
+              font-size: 0.8rem;
+              color: #999;
+              margin-bottom: 10px;
+            }
+
+            .c_05 a button {
+              padding: 10px 15px;
+              font-size: 0.9rem;
+              color: #fff;
+              background-color: #28a745;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              transition: all 0.3s;
+            }
+
+            .c_05 a button:hover {
+              background-color: #218838;
+              transform: scale(1.05);
+            }
+
+            .error-message {
+              text-align: center;
+              color: red;
+              margin-top: 20px;
+            }
+            `}
+          </style>
+
+          <div className="add">
+            <h2>Want to add a new posting?</h2>
+            <Link to={generateLink('/post/:id')}>
+              <button className="btn_02">Add Here</button>
+            </Link>
+          </div>
+
+          {error ? (
+            <div className="error-message">
+              <p>Failed To Load Postings</p>
+              <p>{error}</p>
+            </div>
+          ) : (
+            <div className="search-bar-container">
+              <input type='text' onChange={serachBar} className="search-bar" placeholder="Search jobs by title, description, company..."/>
+            <div className="container_05">
+              {filteredCards.map((element, index) => (
+                <div key={index} className="c_05">
+                  <h3>{element.companyName}</h3>
+                  <h5>Job Title: {element.jobTitle}</h5>
+                  <p>Description: {element?.description || text}</p>
+                  <p>Job Type: {element.jobType}</p>
+                  <p>Requirements: {element.requirement}</p>
+                  <p>Posted At: {element.postedAt.slice(0, 10)}</p>
+                  <small>{element.Note}</small>
+                  <a href={element.link} target="_blank" rel="noopener noreferrer">
+                    <button>Apply Now</button>
+                  </a>
+                </div>
+              ))}
+            </div>
+            </div>
+          )}
         </>
       )}
-        </div>
-    )
-}
+    </div>
+  );
+};
 
-export default JobPortal
+export default JobPortal;

@@ -3,14 +3,40 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
-const port = 8080;
+const helmet = require('helmet');
+
+// Customized Helmet CSP configuration
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'https://vercel.live',
+          'https://vercel.live/_next-live/feedback/feedback.js',
+        ], 
+        scriptSrcElem: [
+          "'self'",
+          'https://vercel.live',
+          'https://vercel.live/_next-live/feedback/feedback.js', 
+        ],
+        connectSrc: ["'self'", 'https://vercel.live'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:'],
+      },
+    },
+  })
+);
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3000', 
+  origin: ['http://localhost:3000', 'https://career-connect-one.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
@@ -26,11 +52,13 @@ const { connectDB } = require('./db');
     await connectDB();
     app.use('/user/auth', require('./Routes/Auth'));
     app.use('/user/data', require('./Routes/Data'));
-    app.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}`);
+
+    // Add a root route to avoid "Cannot GET /"
+    app.get('/', (req, res) => {
+      res.send('Welcome to the backend API!');
     });
   } catch (error) {
-    console.error('Error starting server:', error);
+    console.error('Error connecting to database:', error);
   }
 })();
 
@@ -39,3 +67,12 @@ app.use((err, req, res, next) => {
   console.error('Internal Server Error:', err);
   res.status(500).send('Something went wrong!');
 });
+
+
+const PORT = 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+
+module.exports = app;
